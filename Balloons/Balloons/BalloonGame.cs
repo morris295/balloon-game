@@ -5,12 +5,21 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Balloons
 {
     public class BalloonGame
     {
+
+        public delegate void InfoHandler(object sender, BalloonInfoArgs e);
+        public delegate void UpdateGameEventHandler(object sender, PaintEventArgs e);
+        public event UpdateGameEventHandler update;
+        public event InfoHandler OnInfo;
+        public event EventHandler OnNoInfo;
+
         // Private class properties
+        private Balloon _activeBalloon = null;
         private ArrayList _balloons = new ArrayList();
         private int _desiredFrameRate = 20;
         private Random _random = new Random();
@@ -52,22 +61,17 @@ namespace Balloons
             Balloon balloon = new Balloon(new Point(_random.Next(_boardSize.Width - 20), _boardSize.Height),
                     new Size(20, 20), _defaultColor, growthRate, liftRate);
 
+            //Balloon pop event handler
             balloon.Popped += new EventHandler(PoppedEventHandler);
             _ballonDrawAnimate += balloon.DrawAndAnimate;
 
             return balloon;
         }
 
-        public delegate void InfoHandler(object sender, BalloonInfoArgs e);
-        public event InfoHandler OnInfo;
-        public event EventHandler OnNoInfo;
-
-        private Balloon _activeBalloon = null;
-
         private void RemoveBalloon(Balloon balloon)
         {
+            // Remove event delegate handler for Popped event for this balloon
             balloon.Popped -= this.PoppedEventHandler;
-            _ballonDrawAnimate -= balloon.DrawAndAnimate;
 
             int index = _balloons.IndexOf(balloon);
             if (index >= 0)
@@ -75,7 +79,6 @@ namespace Balloons
                 if (_balloons[index] == _activeBalloon) _activeBalloon = null;
                 _balloons.RemoveAt(index);
 
-                // Raise OnNoInfo event
                 OnNoInfo(balloon, EventArgs.Empty);
             }
         }
@@ -85,7 +88,6 @@ namespace Balloons
             // Remove popped balloon and add new balloon, then conditionally add new balloon
             // if max balloon count not reached
             Balloon balloon = sender as Balloon;
-            
             if (balloon != null) RemoveBalloon(balloon);
             _balloons.Add(CreateBalloon());
             if (_balloons.Count < _maxBalloons)
@@ -101,31 +103,43 @@ namespace Balloons
             return result;
         }
 
+        protected virtual void onUpdate(EventArgs e)
+        {
+            if (update != null)
+            {
+                update(this, e);
+            }
+        }
+
         // Public methods and event handlers
-        public void Update(Graphics graphics)
+        private void Update(Graphics graphics)
         {
             // Check if time to animate objects
             bool timeToAnimate = TimeToAnimate();
 
+            // Animate, if time, and draw each balloon
+            for (int i = 0; i < _balloons.Count; i++)
+                ((Balloon)_balloons[i]).DrawAndAnimate(timeToAnimate, _boardSize, graphics);
+
             _ballonDrawAnimate(timeToAnimate, _boardSize, graphics);
 
             if (_activeBalloon != null) OnInfo(_activeBalloon, new BalloonInfoArgs(_activeBalloon));
-            // Animate, if time, and draw each balloon
-            /*for (int i = 0; i < _balloons.Count; i++)
-                ((Balloon)_balloons[i]).DrawAndAnimate(timeToAnimate, _boardSize, graphics);*/
         }
 
         public void Select(Point location)
         {
+            // Loop through each balloon in ArrayList to see which was selected
             foreach (Balloon balloon in _balloons)
             {
                 if (balloon.Hit(location))
                 {
+                    // Reset active balloon color
                     if (_activeBalloon != null && _activeBalloon != balloon)
                         _activeBalloon.FillColor = _defaultColor;
                     _activeBalloon = balloon;
                     _activeBalloon.FillColor = _hitColor;
 
+                    // Raise OnInfo event with custom arguments
                     OnInfo(_activeBalloon, new BalloonInfoArgs(_activeBalloon));
                     break;
                 }
@@ -134,10 +148,7 @@ namespace Balloons
 
         public int BalloonCount
         {
-            get 
-            {
-                return (_ballonDrawAnimate != null ? _ballonDrawAnimate.GetInvocationList().Count() : 0); 
-            }
+            get { return (_ballonDrawAnimate != null ? _ballonDrawAnimate.GetInvocationList().Count() : 0); }
         }
     }
 }

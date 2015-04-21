@@ -6,6 +6,7 @@ using System.Drawing;
 
 namespace Balloons
 {
+    // Balloon info struct used for custom event arguments
     public struct BalloonInfo
     {
         public int GrowthRate;
@@ -18,6 +19,7 @@ namespace Balloons
 
     public class Balloon
     {
+        // Private class properties
         private int _growthCount = 0;
         private int _growthRate;
         private int _maxSize;
@@ -27,8 +29,10 @@ namespace Balloons
         private Size _dimensions;
         private Color _fillColor;
 
+        // Public properties
         public Color FillColor { set { _fillColor = value; } }
 
+        // Constructor
         public Balloon(Point location, Size dimensions, Color fillColor, int growthRate, int liftSpeed)
         {
             _location = location;
@@ -41,17 +45,15 @@ namespace Balloons
         }
 
         public event EventHandler Popped;
+
         public delegate void BalloonDrawAnimateDelegate(bool animate, Size boardSize, Graphics graphics);
 
-        public virtual void OnPopped(EventArgs e)
-        {
-            if (Popped != null) Popped(this, e);
-        }
-
+        // Public methods
         public void DrawAndAnimate(bool animate, Size boardSize, Graphics graphics)
         {
             if (animate)
             {
+                // Move and enlarge balloon based on lift and growth rates
                 _location.Y -= _liftSpeed;
                 _growthCount++;
                 if (_growthCount % _growthRate == 0)
@@ -66,7 +68,9 @@ namespace Balloons
             }
             else
             {
+                // Move balloon
                 if (_location.Y + _dimensions.Height <= 0) _location.Y = boardSize.Height;
+                // Draw balloon and balloon tail
                 using (SolidBrush brush = new SolidBrush(_fillColor))
                     graphics.FillEllipse(brush, new Rectangle(_location, _dimensions));
                 Point tailStart = new Point(_location.X + _dimensions.Width / 2, _location.Y + _dimensions.Height);
@@ -74,6 +78,11 @@ namespace Balloons
                 using (Pen pen = new Pen(_fillColor))
                     graphics.DrawLine(pen, tailStart, tailEnd);
             }
+        }
+
+        public virtual void OnPopped(EventArgs e)
+        {
+            if (Popped != null) Popped(this, e);
         }
 
         public BalloonInfo Info()

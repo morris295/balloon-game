@@ -13,7 +13,7 @@ namespace Balloons
     public partial class MainForm : Form
     {
         private BalloonGame _game;
-        private static int _currentFrameRate;   // Timer control frame per second (FPS) variables
+        private static int _currentFrameRate;
         private static int _lastFrameRate;
         private static int _lastTickCount;
 
@@ -42,11 +42,12 @@ namespace Balloons
 
         private void MainForm_Shown(object sender, EventArgs e)
         {
+            // Add event handlers using delegate + operator 
             fps15ToolStripMenuItem.Click += new EventHandler(gameFPSToolStripMenuItem_Click);
             fps20ToolStripMenuItem.Click += new EventHandler(gameFPSToolStripMenuItem_Click);
             fps30ToolStripMenuItem.Click += new EventHandler(gameFPSToolStripMenuItem_Click);
             fps45ToolStripMenuItem.Click += new EventHandler(gameFPSToolStripMenuItem_Click);
-            fps45ToolStripMenuItem.Click += new EventHandler(gameFPSToolStripMenuItem_Click);
+            fps60ToolStripMenuItem.Click += new EventHandler(gameFPSToolStripMenuItem_Click);
             interval5ToolStripMenuItem.Click += new EventHandler(timerIntervalToolStripMenuItem_Click);
             interval10ToolStripMenuItem.Click += new EventHandler(timerIntervalToolStripMenuItem_Click);
             interval15ToolStripMenuItem.Click += new EventHandler(timerIntervalToolStripMenuItem_Click);
@@ -54,14 +55,20 @@ namespace Balloons
             interval30ToolStripMenuItem.Click += new EventHandler(timerIntervalToolStripMenuItem_Click);
             interval45ToolStripMenuItem.Click += new EventHandler(timerIntervalToolStripMenuItem_Click);
             interval60ToolStripMenuItem.Click += new EventHandler(timerIntervalToolStripMenuItem_Click);
+
+            // Simulate clicking 15 interval menu item to set timer interval 
             interval15ToolStripMenuItem.PerformClick();
 
             _game = new BalloonGame(10, mainPictureBox.ClientSize);
 
-            interval15ToolStripMenuItem.PerformClick();
+            // Simulate clicking 20 game FPS menu item for the desired game FPS 
             fps20ToolStripMenuItem.PerformClick();
 
+            // Add event handler for balloon info event from game object using custom event type
             _game.OnInfo += new BalloonGame.InfoHandler(OnInfoEventHandler);
+
+            // Add event handler for no balloon info event from game object using standard no arguments
+            // event type
             _game.OnNoInfo += new EventHandler(OnNoInfoEventHandler);
         }
 
@@ -70,13 +77,9 @@ namespace Balloons
             _game.BoardSize = mainPictureBox.ClientSize;
         }
 
-        private void MainForm_MouseUp(object sender, MouseEventArgs e)
+        void gameFPSToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
-        }
-
-        private void gameFPSToolStripMenuItem_Click(object sender, EventArgs e)
-        {
+            // Adjust game FPS rate, checking and unchecking menu items
             ToolStripMenuItem menuItem = sender as ToolStripMenuItem;
             if (menuItem != null)
             {
@@ -90,8 +93,9 @@ namespace Balloons
             }
         }
 
-        private void timerIntervalToolStripMenuItem_Click(object sender, EventArgs e)
+        void timerIntervalToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            // Adjust timer interval, checking and unchecking menu items
             ToolStripMenuItem menuItem = sender as ToolStripMenuItem;
             if (menuItem != null)
             {
