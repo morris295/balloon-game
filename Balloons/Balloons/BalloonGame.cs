@@ -26,16 +26,10 @@ namespace Balloons
         private int _lastTickCount;
         private Color _defaultColor = Color.Green;
         private Color _hitColor = Color.Red;
-        private Graphics _gameGraphics;
 
         // Private class backing variables
         private Size _boardSize;
         private int _maxBalloons;
-
-        public Graphics GameGraphics
-        {
-            set { _gameGraphics = value; }
-        }
 
         // Public properties
         public Size BoardSize { set { _boardSize = value; } }
@@ -120,7 +114,6 @@ namespace Balloons
 
         public void RenderGame(PaintEventArgs e)
         {
-            _gameGraphics = e.Graphics;
             OnUpdate(e);
         }
 
