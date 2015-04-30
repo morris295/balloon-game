@@ -31,7 +31,7 @@ namespace Balloons
         }
 
         public MainForm()
-        { 
+        {
             InitializeComponent();
         }
 
