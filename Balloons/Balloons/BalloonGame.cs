@@ -13,8 +13,10 @@ namespace Balloons
     {
 
         public delegate void InfoHandler(object sender, BalloonInfoArgs e);
-        public delegate void UpdateGameEventHandler(object sender, PaintEventArgs e);
-        public event UpdateGameEventHandler update;
+        private delegate void UpdateGameEventHandler(object sender, PaintEventArgs e);
+        public delegate void SelectBalloonEventHandler(object sender, MouseEventArgs e);
+        private event UpdateGameEventHandler update;
+        public event SelectBalloonEventHandler select;
         public event InfoHandler OnInfo;
         public event EventHandler OnNoInfo;
 
@@ -38,6 +40,18 @@ namespace Balloons
         {
             get { return _desiredFrameRate; }
             set { _desiredFrameRate = value; }
+        }
+
+        public ArrayList Balloons
+        {
+            get { return _balloons; }
+            set { _balloons = value; }
+        }
+
+        public Balloon ActiveBalloon
+        {
+            get { return _activeBalloon;  }
+            set { _activeBalloon = value; }
         }
 
         // Constructor
@@ -112,9 +126,23 @@ namespace Balloons
             }
         }
 
+        protected virtual void OnSelect(MouseEventArgs e)
+        {
+            if (select != null)
+            {
+                OnInfo(_activeBalloon, new BalloonInfoArgs(_activeBalloon));
+                select(this, e);
+            }
+        }
+
         public void RenderGame(PaintEventArgs e)
         {
             OnUpdate(e);
+        }
+
+        public void SelectBalloon(MouseEventArgs e)
+        {
+            OnSelect(e);
         }
 
         // Public methods and event handlers
@@ -130,26 +158,6 @@ namespace Balloons
             _ballonDrawAnimate(timeToAnimate, _boardSize, e.Graphics);
 
             if (_activeBalloon != null) OnInfo(_activeBalloon, new BalloonInfoArgs(_activeBalloon));
-        }
-
-        public void Select(Point location)
-        {
-            // Loop through each balloon in ArrayList to see which was selected
-            foreach (Balloon balloon in _balloons)
-            {
-                if (balloon.Hit(location))
-                {
-                    // Reset active balloon color
-                    if (_activeBalloon != null && _activeBalloon != balloon)
-                        _activeBalloon.FillColor = _defaultColor;
-                    _activeBalloon = balloon;
-                    _activeBalloon.FillColor = _hitColor;
-
-                    // Raise OnInfo event with custom arguments
-                    OnInfo(_activeBalloon, new BalloonInfoArgs(_activeBalloon));
-                    break;
-                }
-            }
         }
 
         public int BalloonCount

@@ -16,6 +16,9 @@ namespace Balloons
         private static int _currentFrameRate;
         private static int _lastFrameRate;
         private static int _lastTickCount;
+        private Balloon _activeBalloon = null;
+        private Color _defaultBalloonColor = Color.Green;
+        private Color _balloonHitColor = Color.Red;
 
         private static int getFrameRate()
         {
@@ -70,6 +73,9 @@ namespace Balloons
             // Add event handler for no balloon info event from game object using standard no arguments
             // event type
             _game.OnNoInfo += new EventHandler(OnNoInfoEventHandler);
+
+            // Add select event handler.
+            _game.select += BalloonGame_SelectHandler;
         }
 
         private void MainForm_Resize(object sender, EventArgs e)
@@ -118,7 +124,6 @@ namespace Balloons
 
         private void mainPictureBox_Paint(object sender, PaintEventArgs e)
         {
-            //_game.UpdateGame(e.Graphics);
             _game.RenderGame(e);
 
             timerFpsToolStripStatusLabel.Text = "Timer FPS: " + getFrameRate() + ", Game FPS: " + _game.DesiredFrameRate;
@@ -140,7 +145,26 @@ namespace Balloons
 
         private void mainPictureBox_MouseUp(object sender, MouseEventArgs e)
         {
-            _game.Select(e.Location);
+            _game.SelectBalloon(e);
+        }
+
+        private void BalloonGame_SelectHandler(object sender, MouseEventArgs e)
+        {
+            // Loop through each balloon in ArrayList to see which was selected
+            foreach (Balloon balloon in _game.Balloons)
+            {
+                if (balloon.Hit(new Point(e.X, e.Y)))
+                {
+                    // Reset active balloon color
+                    if (_activeBalloon != null && _activeBalloon != balloon)
+                        _activeBalloon.FillColor = _defaultBalloonColor;
+                    _activeBalloon = balloon;
+                    _activeBalloon.FillColor = _balloonHitColor;
+                    _game.ActiveBalloon = _activeBalloon;
+
+                    break;
+                }
+            }
         }
     }
 }
