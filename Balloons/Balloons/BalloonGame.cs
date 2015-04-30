@@ -26,10 +26,16 @@ namespace Balloons
         private int _lastTickCount;
         private Color _defaultColor = Color.Green;
         private Color _hitColor = Color.Red;
+        private Graphics _gameGraphics;
 
         // Private class backing variables
         private Size _boardSize;
         private int _maxBalloons;
+
+        public Graphics GameGraphics
+        {
+            set { _gameGraphics = value; }
+        }
 
         // Public properties
         public Size BoardSize { set { _boardSize = value; } }
@@ -48,6 +54,7 @@ namespace Balloons
             _maxBalloons = maximumBalloonCount;
             if (_maxBalloons <= 0) _maxBalloons = 5;
             _balloons.Add(CreateBalloon());
+            update += Game_UpdateHandler;
         }
 
         private Balloon.BalloonDrawAnimateDelegate _ballonDrawAnimate;
@@ -103,7 +110,7 @@ namespace Balloons
             return result;
         }
 
-        protected virtual void onUpdate(EventArgs e)
+        protected virtual void OnUpdate(PaintEventArgs e)
         {
             if (update != null)
             {
@@ -111,17 +118,23 @@ namespace Balloons
             }
         }
 
+        public void RenderGame(PaintEventArgs e)
+        {
+            _gameGraphics = e.Graphics;
+            OnUpdate(e);
+        }
+
         // Public methods and event handlers
-        private void Update(Graphics graphics)
+        private void Game_UpdateHandler(Object sender, PaintEventArgs e)
         {
             // Check if time to animate objects
             bool timeToAnimate = TimeToAnimate();
 
             // Animate, if time, and draw each balloon
             for (int i = 0; i < _balloons.Count; i++)
-                ((Balloon)_balloons[i]).DrawAndAnimate(timeToAnimate, _boardSize, graphics);
+                ((Balloon)_balloons[i]).DrawAndAnimate(timeToAnimate, _boardSize, e.Graphics);
 
-            _ballonDrawAnimate(timeToAnimate, _boardSize, graphics);
+            _ballonDrawAnimate(timeToAnimate, _boardSize, e.Graphics);
 
             if (_activeBalloon != null) OnInfo(_activeBalloon, new BalloonInfoArgs(_activeBalloon));
         }

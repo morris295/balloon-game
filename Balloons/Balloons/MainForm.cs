@@ -118,7 +118,8 @@ namespace Balloons
 
         private void mainPictureBox_Paint(object sender, PaintEventArgs e)
         {
-            _game.Update(e.Graphics);
+            //_game.UpdateGame(e.Graphics);
+            _game.RenderGame(e);
 
             timerFpsToolStripStatusLabel.Text = "Timer FPS: " + getFrameRate() + ", Game FPS: " + _game.DesiredFrameRate;
             balloonCountToolStripStatusLabel.Text = "Balloon count: " + _game.BalloonCount + " of " + _game.MaxBalloons;
