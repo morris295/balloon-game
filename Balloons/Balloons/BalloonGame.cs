@@ -160,6 +160,11 @@ namespace Balloons
             if (_activeBalloon != null) OnInfo(_activeBalloon, new BalloonInfoArgs(_activeBalloon));
         }
 
+        public void MoveEventHandler(object sender, KeyEventArgs e)
+        {
+
+        }
+
         public int BalloonCount
         {
             get { return (_ballonDrawAnimate != null ? _ballonDrawAnimate.GetInvocationList().Count() : 0); }

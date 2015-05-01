@@ -80,6 +80,28 @@ namespace Balloons
             }
         }
 
+        public void MoveLeft(Size boardSize, Graphics graphics)
+        {
+            if (_location.X + _dimensions.Width <= 0) _location.X = boardSize.Width;
+            using (SolidBrush brush = new SolidBrush(_fillColor))
+                graphics.FillEllipse(brush, new Rectangle(_location, _dimensions));
+            Point tailStart = new Point(_location.X + _dimensions.Width / 2, _location.Y + _dimensions.Height);
+            Point tailEnd = new Point(tailStart.X, tailStart.Y + _tailLength);
+            using (Pen pen = new Pen(_fillColor))
+                graphics.DrawLine(pen, tailStart, tailEnd);
+        }
+
+        public void MoveRight(Size boardSize, Graphics graphics)
+        {
+            if (_location.X + _dimensions.Width > _dimensions.Width) _location.X = boardSize.Width;
+            using (SolidBrush brush = new SolidBrush(_fillColor))
+                graphics.FillEllipse(brush, new Rectangle(_location, _dimensions));
+            Point tailStart = new Point(_location.X + _dimensions.Width / 2, _location.Y + _dimensions.Height);
+            Point tailEnd = new Point(tailStart.X, tailStart.Y + _tailLength);
+            using (Pen pen = new Pen(_fillColor))
+                graphics.DrawLine(pen, tailStart, tailEnd);
+        }
+
         public virtual void OnPopped(EventArgs e)
         {
             if (Popped != null) Popped(this, e);

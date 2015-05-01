@@ -76,6 +76,8 @@ namespace Balloons
 
             // Add select event handler.
             _game.select += BalloonGame_SelectHandler;
+
+            this.KeyDown += _game.MoveEventHandler;
         }
 
         private void MainForm_Resize(object sender, EventArgs e)
